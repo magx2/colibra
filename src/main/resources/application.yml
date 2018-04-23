@@ -1,0 +1,4 @@
+server:
+    port: 50000
+    timeout-in-sec: 30
+logging.level.pl.grzeslowski.colibra: trace
