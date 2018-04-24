@@ -1,5 +1,5 @@
 package pl.grzeslowski.colibra.server
 
-class ClientMessage(val message: String)
+data class ClientMessage(val message: String)
 
-class ServerMessage(val message: String)
+data class ServerMessage(val message: String)

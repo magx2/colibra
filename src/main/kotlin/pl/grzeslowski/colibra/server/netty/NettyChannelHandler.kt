@@ -9,6 +9,8 @@ import io.netty.channel.SimpleChannelInboundHandler
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import pl.grzeslowski.colibra.server.ClientMessage
+import pl.grzeslowski.colibra.server.ServerMessage
 import pl.grzeslowski.colibra.server.session.Uuid
 import reactor.core.publisher.Flux
 import java.util.*
@@ -16,7 +18,7 @@ import java.util.*
 @Scope("prototype")
 //@Sharable
 @Component
-class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<String>() {
+class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<ClientMessage>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
 
     override fun channelRegistered(ctx: ChannelHandlerContext) {
@@ -26,8 +28,8 @@ class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<
     }
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        val msg = "HI, I'M ${uuid.value}\n"
-        log.trace(msg)
+        val msg = ServerMessage("HI, I'M ${uuid.value}")
+        log.trace(msg.toString())
         val cf = ctx.writeAndFlush(msg)
         if (cf.isSuccess) {
             log.trace("success")
@@ -40,7 +42,7 @@ class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<
         log.trace("channelUnregistered {}", ctx.name())
     }
 
-    override fun channelRead0(ctx: ChannelHandlerContext, msg: String) {
+    override fun channelRead0(ctx: ChannelHandlerContext, msg: ClientMessage) {
         log.trace("channelRead0 {}:{}", ctx.name(), msg)
     }
 }

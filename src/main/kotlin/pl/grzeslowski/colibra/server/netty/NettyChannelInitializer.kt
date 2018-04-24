@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component
 
 @Scope("prototype")
 @Component
-class NettyChannelInitializer(private val context: ApplicationContext) : ChannelInitializer<SocketChannel>() {
+class NettyChannelInitializer(private val context: ApplicationContext,
+                              private val serverMessageChannelHandler: ServerMessageChannelHandler,
+                              private val clientMessageChannelHandler: ClientMessageChannelHandler) : ChannelInitializer<SocketChannel>() {
     private val log = LoggerFactory.getLogger(NettyChannelInitializer::class.java)
     private val charset = CharsetUtil.UTF_8
 
@@ -25,7 +27,9 @@ class NettyChannelInitializer(private val context: ApplicationContext) : Channel
         val pipeline = socketChannel.pipeline()
         pipeline.addLast(LineBasedFrameDecoder(Int.MAX_VALUE))
         pipeline.addLast(StringDecoder(charset))
+        pipeline.addLast(clientMessageChannelHandler)
         pipeline.addLast(StringEncoder(charset))
+        pipeline.addLast(serverMessageChannelHandler)
         pipeline.addLast(newNettyChannelHandler())
     }
 
