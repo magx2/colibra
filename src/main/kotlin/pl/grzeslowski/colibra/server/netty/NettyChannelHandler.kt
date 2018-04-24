@@ -1,49 +1,55 @@
 package pl.grzeslowski.colibra.server.netty
 
 import com.sun.deploy.trace.Trace.flush
-import io.netty.channel.ChannelHandler
-import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
-import io.netty.channel.ChannelPromise
 import io.netty.channel.SimpleChannelInboundHandler
+import io.netty.handler.timeout.ReadTimeoutException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
-import pl.grzeslowski.colibra.server.ClientMessage
-import pl.grzeslowski.colibra.server.ServerMessage
+import pl.grzeslowski.colibra.server.*
 import pl.grzeslowski.colibra.server.session.Session
-import pl.grzeslowski.colibra.server.session.Uuid
-import reactor.core.publisher.Flux
-import java.util.*
+import java.util.stream.Collectors
 
 @Scope("prototype")
 //@Sharable
 @Component
-class NettyChannelHandler(private val session: Session) : SimpleChannelInboundHandler<ClientMessage>() {
+class NettyChannelHandler(private val session: Session,
+                          private val newChannelListeners: Set<NewChannelListener>,
+                          private val newMessageListener: Set<NewMessageListener>,
+                          private val timeoutListener: TimeoutListener) : SimpleChannelInboundHandler<ClientMessage>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
 
-    override fun channelRegistered(ctx: ChannelHandlerContext) {
-        super.channelRegistered(ctx)
-        log.trace("channelRegistered {}", ctx.name())
-
-    }
-
     override fun channelActive(ctx: ChannelHandlerContext) {
-        val msg = ServerMessage("HI, I'M ${session.uuid.value}")
-        log.trace(msg.toString())
-        val cf = ctx.writeAndFlush(msg)
-        if (cf.isSuccess) {
-            log.trace("success")
-        } else {
-            log.trace("not success {}", cf.cause())
-        }
+        newChannelListeners.forEach { listener -> listener.onNewChannel(createColibraChannel(ctx)) }
     }
 
-    override fun channelUnregistered(ctx: ChannelHandlerContext) {
-        log.trace("channelUnregistered {}", ctx.name())
+    override fun exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable) {
+        when(cause) {
+            is ReadTimeoutException -> {
+                log.debug("Timeout $session")
+                timeoutListener.timeout(createColibraChannel(ctx))
+            }
+            else -> {
+                log.error("Closing channel because of exception!", cause)
+                ctx.channel().close()
+            }
+        }
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: ClientMessage) {
         log.trace("channelRead0 {}:{}", ctx.name(), msg)
+        val channel = createColibraChannel(ctx)
+        val someoneHandledThisMessage = newMessageListener.stream()
+                .map { listener -> listener.onNewMessage(msg, channel) }
+                .filter { it }
+                .collect(Collectors.reducing { t: Boolean, u: Boolean -> t && u })
+                .orElseGet { false }
+        if (!someoneHandledThisMessage) {
+            log.warn("Nobody handled this message $msg")
+            channel.write(ServerMessage("SORRY, I DIDN'T UNDERSTAND THAT"))
+        }
     }
+
+    private fun createColibraChannel(ctx: ChannelHandlerContext) = NettyChanel(ctx.channel(), session)
 }

@@ -11,6 +11,7 @@ import pl.grzeslowski.colibra.channels.NewChannel
 import pl.grzeslowski.colibra.server.Server
 import pl.grzeslowski.colibra.server.ServerProperties
 import reactor.core.publisher.Flux
+import java.nio.channels.Channel
 
 @Component
 class NettyServer(private val serverProperties: ServerProperties,
@@ -19,7 +20,6 @@ class NettyServer(private val serverProperties: ServerProperties,
     private val bossGroup = NioEventLoopGroup()
     private val workerGroup = NioEventLoopGroup()
     private val channelFuture: ChannelFuture
-    final val newChannelPublisher: Flux<NewChannel>
 
     init {
         log.info("Starting server on port {}", serverProperties.port)
@@ -31,8 +31,6 @@ class NettyServer(private val serverProperties: ServerProperties,
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .bind(serverProperties.port)
-
-        newChannelPublisher = Flux.empty()
 
         log.debug("Server started on port {}", serverProperties.port)
     }

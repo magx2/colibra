@@ -6,17 +6,21 @@ import io.netty.channel.socket.SocketChannel
 import io.netty.handler.codec.LineBasedFrameDecoder
 import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
+import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.util.CharsetUtil
+import org.omg.CORBA.Object
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import pl.grzeslowski.colibra.server.ServerProperties
 
 @Scope("prototype")
 @Component
 class NettyChannelInitializer(private val context: ApplicationContext,
                               private val serverMessageChannelHandler: ServerMessageChannelHandler,
-                              private val clientMessageChannelHandler: ClientMessageChannelHandler) : ChannelInitializer<SocketChannel>() {
+                              private val clientMessageChannelHandler: ClientMessageChannelHandler,
+                              private val serverProperties: ServerProperties) : ChannelInitializer<SocketChannel>() {
     private val log = LoggerFactory.getLogger(NettyChannelInitializer::class.java)
     private val charset = CharsetUtil.UTF_8
 
@@ -25,6 +29,7 @@ class NettyChannelInitializer(private val context: ApplicationContext,
                 socketChannel.localAddress(),
                 socketChannel.remoteAddress())
         val pipeline = socketChannel.pipeline()
+        pipeline.addLast(ReadTimeoutHandler(serverProperties.timeoutInSec))
         pipeline.addLast(LineBasedFrameDecoder(Int.MAX_VALUE))
         pipeline.addLast(StringDecoder(charset))
         pipeline.addLast(clientMessageChannelHandler)
