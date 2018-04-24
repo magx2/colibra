@@ -1,5 +1,6 @@
 package pl.grzeslowski.colibra.server.netty
 
+import com.sun.deploy.trace.Trace.flush
 import io.netty.channel.ChannelHandler
 import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.ChannelHandlerContext
@@ -16,11 +17,6 @@ import java.util.*
 @Component
 class NettyChannelHandler : SimpleChannelInboundHandler<String>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
-//    val channel: Flux<String>
-//
-//    init {
-//        Flux.create<>()
-//    }
 
     override fun channelRegistered(ctx: ChannelHandlerContext) {
         super.channelRegistered(ctx)
@@ -33,8 +29,7 @@ class NettyChannelHandler : SimpleChannelInboundHandler<String>() {
     override fun channelActive(ctx: ChannelHandlerContext) {
         val msg = "HI, I'M ${uuid()}\n"
         log.trace(msg)
-        val cf = ctx.write(msg)
-        ctx.flush()
+        val cf = ctx.writeAndFlush(msg)
         if(cf.isSuccess) {
             log.trace("success")
         } else {
@@ -43,13 +38,10 @@ class NettyChannelHandler : SimpleChannelInboundHandler<String>() {
     }
 
     override fun channelUnregistered(ctx: ChannelHandlerContext) {
-//        super.channelUnregistered(ctx)
         log.trace("channelUnregistered {}", ctx.name())
-
     }
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: String) {
         log.trace("channelRead0 {}:{}", ctx.name(), msg)
-
     }
 }

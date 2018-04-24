@@ -1,9 +1,11 @@
 package pl.grzeslowski.colibra
 
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.stereotype.Component
+import java.util.concurrent.TimeUnit
 
 @SpringBootApplication
 class ColibraApplication
@@ -14,10 +16,10 @@ fun main(args: Array<String>) {
 
 @Component
 class RuIt : CommandLineRunner {
+    private val log = LoggerFactory.getLogger(RuIt::class.java)
     override fun run(vararg args: String?) {
-        while (true) {
-            Thread.sleep(1_000)
-        }
+        TimeUnit.MINUTES.sleep(10)
+        log.info("Closing...")
     }
 
 }

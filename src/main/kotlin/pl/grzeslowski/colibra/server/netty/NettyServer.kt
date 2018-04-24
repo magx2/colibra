@@ -24,14 +24,13 @@ class NettyServer(private val serverProperties: ServerProperties,
     init {
         log.info("Starting server on port {}", serverProperties.port)
 
-        val serverBootstrap = ServerBootstrap()
-        serverBootstrap.group(bossGroup, workerGroup)
+        channelFuture = ServerBootstrap()
+                .group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel::class.java)
                 .childHandler(channelInitializer)
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true)
-
-        channelFuture = serverBootstrap.bind(serverProperties.port)
+                .bind(serverProperties.port)
 
         newChannelPublisher = Flux.empty()
 
