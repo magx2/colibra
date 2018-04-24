@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import pl.grzeslowski.colibra.server.ClientMessage
 import pl.grzeslowski.colibra.server.ServerMessage
+import pl.grzeslowski.colibra.server.session.Session
 import pl.grzeslowski.colibra.server.session.Uuid
 import reactor.core.publisher.Flux
 import java.util.*
@@ -18,7 +19,7 @@ import java.util.*
 @Scope("prototype")
 //@Sharable
 @Component
-class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<ClientMessage>() {
+class NettyChannelHandler(private val session: Session) : SimpleChannelInboundHandler<ClientMessage>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
 
     override fun channelRegistered(ctx: ChannelHandlerContext) {
@@ -28,7 +29,7 @@ class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<
     }
 
     override fun channelActive(ctx: ChannelHandlerContext) {
-        val msg = ServerMessage("HI, I'M ${uuid.value}")
+        val msg = ServerMessage("HI, I'M ${session.uuid.value}")
         log.trace(msg.toString())
         val cf = ctx.writeAndFlush(msg)
         if (cf.isSuccess) {
