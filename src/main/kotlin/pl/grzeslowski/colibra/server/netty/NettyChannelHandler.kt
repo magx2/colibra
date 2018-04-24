@@ -9,13 +9,14 @@ import io.netty.channel.SimpleChannelInboundHandler
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
+import pl.grzeslowski.colibra.server.session.Uuid
 import reactor.core.publisher.Flux
 import java.util.*
 
 @Scope("prototype")
 //@Sharable
 @Component
-class NettyChannelHandler : SimpleChannelInboundHandler<String>() {
+class NettyChannelHandler(private val uuid: Uuid) : SimpleChannelInboundHandler<String>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
 
     override fun channelRegistered(ctx: ChannelHandlerContext) {
@@ -24,13 +25,11 @@ class NettyChannelHandler : SimpleChannelInboundHandler<String>() {
 
     }
 
-    private fun uuid() = UUID.randomUUID().toString()
-
     override fun channelActive(ctx: ChannelHandlerContext) {
-        val msg = "HI, I'M ${uuid()}\n"
+        val msg = "HI, I'M ${uuid.value}\n"
         log.trace(msg)
         val cf = ctx.writeAndFlush(msg)
-        if(cf.isSuccess) {
+        if (cf.isSuccess) {
             log.trace("success")
         } else {
             log.trace("not success {}", cf.cause())
