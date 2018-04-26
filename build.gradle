@@ -55,7 +55,6 @@ dependencies {
 
 	testCompile "org.junit.jupiter:junit-jupiter-engine:$junit"
 	testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: junit
-	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile("io.projectreactor:reactor-test:$reactorVersion")
 
