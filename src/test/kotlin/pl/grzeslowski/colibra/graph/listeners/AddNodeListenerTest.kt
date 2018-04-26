@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,8 +14,10 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import pl.grzeslowski.colibra.graph.GraphRepository
 import pl.grzeslowski.colibra.graph.Node
+import pl.grzeslowski.colibra.graph.NodeAlreadyExists
 import pl.grzeslowski.colibra.server.ClientMessage
 import pl.grzeslowski.colibra.server.ColibraChannel
+import pl.grzeslowski.colibra.server.ServerMessage
 import pl.grzeslowski.colibra.spring.testProfileName
 
 @SpringBootTest
@@ -71,5 +74,22 @@ internal class AddNodeListenerTest {
 
         // then
         verify(graphRepository).addNode(Node(nodeName))
+        verify(channel).write(ServerMessage("NODE ADDED"))
+    }
+
+    @Test
+    fun `should write message if node is duplicate`() {
+
+        // given
+        val nodeName = "TEST-NODE"
+        val message = ClientMessage("ADD NODE $nodeName")
+        val node = Node(nodeName)
+        given(graphRepository.addNode(node)).willThrow(NodeAlreadyExists(node))
+
+        // when
+        listener.onNewMessage(message, channel)
+
+        // then
+        verify(channel).write(ServerMessage("ERROR: NODE ALREADY EXISTS"))
     }
 }
