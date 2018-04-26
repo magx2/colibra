@@ -1,6 +1,7 @@
 package pl.grzeslowski.colibra.graph
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
 internal class NewNodeGraphTest {
@@ -100,5 +101,25 @@ internal class NewNodeGraphTest {
 
         // then
         assertThat(edges).containsExactlyInAnyOrder(edge2, edge3)
+    }
+
+    @Test
+    fun `should throw exception when first node already exists`() {
+        assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node1) })
+    }
+
+    @Test
+    fun `should throw exception when last node already exists`() {
+        assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
+    }
+
+    @Test
+    fun `should throw exception when first edge already exists`() {
+        assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge1) })
+    }
+
+    @Test
+    fun `should throw exception when last edge already exists`() {
+        assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge3) })
     }
 }

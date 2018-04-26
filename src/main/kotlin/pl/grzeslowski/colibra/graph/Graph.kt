@@ -23,6 +23,12 @@ data class Edge(val a: Node, val b: Node, val weight: Int)
 
 class NewNodeGraph(val newNode: Node,
                    val parentGraph: Graph) : Graph() {
+    init {
+        if (parentGraph.containsNode(newNode)) {
+            throw NodeAlreadyExists(newNode)
+        }
+    }
+
     override fun addNode(node: Node) = NewNodeGraph(node, this)
 
     override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)
@@ -47,6 +53,12 @@ class NewNodeGraph(val newNode: Node,
 
 class NewEdgeGraph(val newEdge: Edge,
                    val parentGraph: Graph) : Graph() {
+    init {
+        if (parentGraph.edges().contains(newEdge)) {
+            throw EdgeAlreadyExists(newEdge)
+        }
+    }
+
     override fun addNode(node: Node) = NewNodeGraph(node, this)
 
     override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)

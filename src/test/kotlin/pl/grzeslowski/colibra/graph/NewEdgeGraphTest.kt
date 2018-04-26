@@ -1,6 +1,7 @@
 package pl.grzeslowski.colibra.graph
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 internal class NewEdgeGraphTest {
@@ -108,6 +109,26 @@ internal class NewEdgeGraphTest {
     @Test
     fun `should contains all nodes`() {
         assertThatGraphContainsAllNodes()
+    }
+
+    @Test
+    fun `should throw exception when first node already exists`() {
+        Assertions.assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node1) })
+    }
+
+    @Test
+    fun `should throw exception when last node already exists`() {
+        Assertions.assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
+    }
+
+    @Test
+    fun `should throw exception when first edge already exists`() {
+        Assertions.assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge1) })
+    }
+
+    @Test
+    fun `should throw exception when last edge already exists`() {
+        Assertions.assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge3) })
     }
 
     private fun assertThatGraphContainsAllNodes() = assertThatGraphContainsAllNodes(graph)
