@@ -1,19 +1,18 @@
 package pl.grzeslowski.colibra.server.netty
 
-import org.slf4j.LoggerFactory
+import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.ChannelFuture
 import io.netty.channel.ChannelOption
-import io.netty.channel.socket.nio.NioServerSocketChannel
-import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.nio.NioServerSocketChannel
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import pl.grzeslowski.colibra.channels.NewChannel
 import pl.grzeslowski.colibra.server.Server
 import pl.grzeslowski.colibra.server.ServerProperties
-import reactor.core.publisher.Flux
-import java.nio.channels.Channel
+import pl.grzeslowski.colibra.spring.NotTestProfile
 
 @Component
+@NotTestProfile
 class NettyServer(private val serverProperties: ServerProperties,
                   channelInitializer: NettyChannelInitializer) : Server {
     private val log = LoggerFactory.getLogger(NettyServer::class.java)

@@ -5,6 +5,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.stereotype.Component
+import pl.grzeslowski.colibra.spring.NotTestProfile
 import java.util.concurrent.TimeUnit
 
 @SpringBootApplication
@@ -14,6 +15,7 @@ fun main(args: Array<String>) {
     runApplication<ColibraApplication>(*args)
 }
 
+@NotTestProfile
 @Component
 class RuIt : CommandLineRunner {
     private val log = LoggerFactory.getLogger(RuIt::class.java)
