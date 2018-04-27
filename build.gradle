@@ -84,6 +84,7 @@ task("acceptanceTest") {
 
 		println " > starting test"
 		final proc = "java -jar testclient.jar debug".execute()
+		println " > waiting for test to end..."
 		println proc.text
 		println "> killing server"
 		//noinspection GroovyVariableNotAssigned
@@ -94,4 +95,4 @@ task("acceptanceTest") {
 		}
 	}
 }
-tasks.acceptanceTest.dependsOn "test", "build"
+tasks.acceptanceTest.dependsOn "clean", "test", "build"
