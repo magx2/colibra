@@ -1,6 +1,5 @@
 package pl.grzeslowski.colibra.server.netty
 
-import com.sun.deploy.trace.Trace.flush
 import io.netty.channel.ChannelHandlerContext
 import io.netty.channel.SimpleChannelInboundHandler
 import io.netty.handler.timeout.ReadTimeoutException
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.Scope
 import org.springframework.stereotype.Component
 import pl.grzeslowski.colibra.server.*
 import pl.grzeslowski.colibra.server.session.Session
-import java.util.stream.Collectors
 
 @Scope("prototype")
 //@Sharable
@@ -43,7 +41,7 @@ class NettyChannelHandler(private val session: Session,
         val someoneHandledThisMessage = newMessageListener.stream()
                 .map { listener -> listener.onNewMessage(msg, channel) }
                 .filter { it }
-                .collect(Collectors.reducing { t: Boolean, u: Boolean -> t && u })
+                .findAny()
                 .orElseGet { false }
         if (!someoneHandledThisMessage) {
             log.warn("Nobody handled this message $msg")
