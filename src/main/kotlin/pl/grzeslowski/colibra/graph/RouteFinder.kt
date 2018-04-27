@@ -29,12 +29,12 @@ class RouteFinderImpl : RouteFinder {
                     .filter { edge -> endsIn(node, edge) }
                     .collect(Collectors.toSet())
 
-    private fun endsIn(node: Node, edge: Edge) = edge.a == node || edge.b == node
+    private fun endsIn(node: Node, edge: Edge) = edge.from == node || edge.to == node
 
     private fun oppositeNode(node: Node, edge: Edge) =
             when (node) {
-                edge.a -> edge.b
-                edge.b -> edge.a
+                edge.from -> edge.to
+                edge.to -> edge.from
                 else -> throw IllegalArgumentException("Node $node is not in edge $edge!")
             }
 

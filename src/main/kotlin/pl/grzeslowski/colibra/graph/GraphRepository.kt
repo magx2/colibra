@@ -9,7 +9,7 @@ interface GraphRepository {
 
     fun removeNode(node: Node)
 
-    fun removeEdge(edge: Edge)
+    fun removeEdge(from: Node, to: Node)
 
     fun getReadOnlyGraph(): Graph
 }
@@ -37,9 +37,9 @@ class InMemoryGraphRepository : GraphRepository {
         }
     }
 
-    override fun removeEdge(edge: Edge) {
+    override fun removeEdge(from: Node, to: Node) {
         synchronized(lock) {
-            graph = graph.removeEdge(edge)
+            graph = graph.removeEdge(from, to)
         }
     }
 

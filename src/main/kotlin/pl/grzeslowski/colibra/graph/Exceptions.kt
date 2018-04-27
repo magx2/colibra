@@ -6,4 +6,4 @@ class EdgeAlreadyExists(edge: Edge) : RuntimeException("Edge $edge already exist
 
 class NodeNotFound(node: Node) : RuntimeException("Node $node not found!")
 
-class EdgeNotFound(edge: Edge) : RuntimeException("Edge $edge not found!")
+class NodesNotFound(node1: Node, node2: Node) : RuntimeException("Nodes $node1, $node2 not found!")

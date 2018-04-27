@@ -10,7 +10,9 @@ sealed class Graph {
 
     abstract fun removeNode(node: Node): Graph
 
-    abstract fun removeEdge(edge: Edge): Graph
+    abstract fun removeEdge(from: Node, to: Node): Graph
+
+    abstract fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean): Graph
 
     abstract fun containsNode(node: Node): Boolean
 
@@ -19,7 +21,7 @@ sealed class Graph {
 
 data class Node(val name: String)
 
-data class Edge(val a: Node, val b: Node, val weight: Int)
+data class Edge(val from: Node, val to: Node, val weight: Int)
 
 class NewNodeGraph(val newNode: Node,
                    val parentGraph: Graph) : Graph() {
@@ -39,7 +41,16 @@ class NewNodeGraph(val newNode: Node,
                 else -> NewNodeGraph(newNode, parentGraph.removeNode(node))
             }
 
-    override fun removeEdge(edge: Edge) = NewNodeGraph(newNode, parentGraph.removeEdge(edge))
+    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
+
+    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean): Graph {
+        val newParentGraph = when (newNode) {
+            from -> parentGraph.removeEdge(from, to, true, toFound)
+            to -> parentGraph.removeEdge(from, to, fromFound, true)
+            else -> parentGraph.removeEdge(from, to, fromFound, toFound)
+        }
+        return NewNodeGraph(newNode, newParentGraph)
+    }
 
     override fun containsNode(node: Node) =
             when (node) {
@@ -65,10 +76,13 @@ class NewEdgeGraph(val newEdge: Edge,
 
     override fun removeNode(node: Node) = NewEdgeGraph(newEdge, parentGraph.removeNode(node))
 
-    override fun removeEdge(edge: Edge) =
-            when (edge) {
-                newEdge -> parentGraph
-                else -> NewEdgeGraph(newEdge, parentGraph.removeEdge(edge))
+    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
+
+    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean) =
+            if (newEdge.from == from && newEdge.to == to) {
+                parentGraph.removeEdge(from, to, fromFound, toFound)
+            } else {
+                NewEdgeGraph(newEdge, parentGraph.removeEdge(from, to, fromFound, toFound))
             }
 
     override fun containsNode(node: Node) = parentGraph.containsNode(node)
@@ -88,7 +102,18 @@ object EmptyGraph : Graph() {
 
     override fun removeNode(node: Node) = throw NodeNotFound(node)
 
-    override fun removeEdge(edge: Edge) = throw EdgeNotFound(edge)
+    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
+
+    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean) =
+            if (fromFound.not() && toFound.not()) {
+                throw NodesNotFound(from, to)
+            } else if (fromFound.not()) {
+                throw NodeNotFound(from)
+            } else if (toFound.not()) {
+                throw NodeNotFound(to)
+            } else {
+                this
+            }
 
     override fun containsNode(node: Node) = false
 

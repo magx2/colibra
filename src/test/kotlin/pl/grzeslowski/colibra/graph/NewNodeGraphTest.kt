@@ -87,7 +87,7 @@ internal class NewNodeGraphTest {
     fun `should remove first edge`() {
 
         // when
-        val edges = graph.removeEdge(edge3).edges()
+        val edges = graph.removeEdge(edge3.from, edge3.to).edges()
 
         // then
         assertThat(edges).containsExactlyInAnyOrder(edge1, edge2)
@@ -97,7 +97,7 @@ internal class NewNodeGraphTest {
     fun `should remove last edge`() {
 
         // when
-        val edges = graph.removeEdge(edge1).edges()
+        val edges = graph.removeEdge(edge1.from, edge1.to).edges()
 
         // then
         assertThat(edges).containsExactlyInAnyOrder(edge2, edge3)

@@ -29,7 +29,7 @@ internal class EmptyGraphTest {
 
     @Test
     fun `should thr error on removing edge`() {
-        assertThrows(EdgeNotFound::class.java, { graph.removeEdge(edge) })
+        assertThrows(NodesNotFound::class.java, { graph.removeEdge(edge.from, edge.to) })
     }
 
     @Test
