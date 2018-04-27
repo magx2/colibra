@@ -30,3 +30,4 @@ testclient.zip
 testclient/
 
 *.log
+logs/*.gz
