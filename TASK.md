@@ -42,19 +42,19 @@ On connection, the server starts a new session and generates a unique ID for the
 
 The server sends a first message back to the client:
 
-> HI, I’M <session-id>
+> HI, I’M &lt;session-id&gt;
 
-Where the *<session-id>* is replaced by the generated session id.
+Where the *&lt;session-id&gt;* is replaced by the generated session id.
 
 The client will then respond with:
 
-> HI, I’M <name>
+> HI, I’M &lt;name&gt;
 
-Where *<name>* can be any string of alphanumeric characters + the dash character (-).
+Where *&lt;name&gt;* can be any string of alphanumeric characters + the dash character (-).
 
 The server will respond with:
 
-> HI <name>
+> HI &lt;name&gt;
 
 To end the session, the client will send:
 
@@ -62,9 +62,9 @@ To end the session, the client will send:
 
 After which the server will respond with
 
-> BYE <name>, WE SPOKE FOR <X> MS
+> BYE &lt;name&gt;, WE SPOKE FOR &lt;X&gt; MS
 
-Where *<name>* is the name the client mentioned in its first message and *<X>* is the number of
+Where *&lt;name&gt;* is the name the client mentioned in its first message and *&lt;X&gt;* is the number of
 milliseconds the session.
 
 > Note: this message should also be sent to the client when the session times out (after not receiving any message from the client for 30 seconds).
@@ -86,7 +86,7 @@ These commands can occur 0 or multiple times in any order.
 
 ```ADD NODE <X>```
 
-Adds a new node with name *<X>* to the graph. The response must be:
+Adds a new node with name *&lt;X&gt;* to the graph. The response must be:
 
 - If succeeded: ```NODE ADDED```
 - If already exists: ```ERROR: NODE ALREADY EXISTS```
@@ -95,7 +95,7 @@ Adds a new node with name *<X>* to the graph. The response must be:
 
  ```ADD EDGE <X> <Y> <WEIGHT>```
  
-Adds an edge from node *<X>* to node *<Y>* with the given *<WEIGHT>*. The *<WEIGHT>* is a
+Adds an edge from node *&lt;X&gt;* to node *&lt;Y&gt;* with the given *&lt;WEIGHT&gt;*. The *&lt;WEIGHT&gt;* is a
 simple integer indicating the weight of the edge.
 
 The response must be:
@@ -109,7 +109,7 @@ The response must be:
 
 ```REMOVE NODE <X>```
 
-Removed node *<X>* from the graph. 
+Removed node *&lt;X&gt;* from the graph. 
 
 The response must be:
 
@@ -120,7 +120,7 @@ The response must be:
 
 ```REMOVE EDGE <X> <Y>```
 
-Remove all the edges from node *<X>* to node *<Y>*.
+Remove all the edges from node *&lt;X&gt;* to node *&lt;Y&gt;*.
 
 The response must be:
 
@@ -142,14 +142,14 @@ directed graph.
 
 ```SHORTEST PATH <X> <Y>```
 
-Finds the shortest (weighted) path from node *<X>* to node *<Y>*.
+Finds the shortest (weighted) path from node *&lt;X&gt;* to node *&lt;Y&gt;*.
 
 The response must be:
 
 - If succeeded: ```<WEIGHT>```
 - If a node not found: ```ERROR: NODE NOT FOUND```
 
-Where *<WEIGHT>* is the sum of the weights of the shortest path.
+Where *&lt;WEIGHT&gt;* is the sum of the weights of the shortest path.
 
 > Note: when there is no connection between the two nodes. Integer.MAX_VALUE must be
 returned.
@@ -169,7 +169,7 @@ Finds all the nodes that are closer to node *X* than the given weight. The respo
 - If succeeded: ```<NODES>```
 - If a node not found: ```ERROR: NODE NOT FOUND```
 
-Where *<NODES>* is a comma separated list (no spaces) of the found nodes, sorted
+Where *&lt;NODES&gt;* is a comma separated list (no spaces) of the found nodes, sorted
 alphabetically by name, not including the starting point
 
 For example:
