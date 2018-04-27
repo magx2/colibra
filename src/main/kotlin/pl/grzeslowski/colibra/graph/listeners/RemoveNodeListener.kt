@@ -18,7 +18,7 @@ class RemoveNodeListener(private val graphRepository: GraphRepository) : NewMess
             if (clientMessage.message.startsWith(prefix)) {
                 val nodeName = clientMessage.message.substring(prefix.length)
                 try {
-                    graphRepository.addNode(Node(nodeName))
+                    graphRepository.removeNode(Node(nodeName))
                     channel.write(ServerMessage("NODE REMOVED"))
                 } catch (ex: NodeNotFound) {
                     logger.error("Cannot remove  node", ex)

@@ -72,7 +72,7 @@ internal class RemoveNodeListenerTest {
         listener.onNewMessage(message, channel)
 
         // then
-        Mockito.verify(graphRepository).addNode(Node(nodeName))
+        Mockito.verify(graphRepository).removeNode(Node(nodeName))
     }
 
     @Test
@@ -82,7 +82,7 @@ internal class RemoveNodeListenerTest {
         val nodeName = "TEST-NODE"
         val message = ClientMessage("REMOVE NODE $nodeName")
         val node = Node(nodeName)
-        BDDMockito.given(graphRepository.addNode(node)).willThrow(NodeNotFound(node))
+        BDDMockito.given(graphRepository.removeNode(node)).willThrow(NodeNotFound(node))
 
         // when
         listener.onNewMessage(message, channel)
