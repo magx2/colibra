@@ -13,12 +13,12 @@ internal class NewNodeGraphTest {
     private val edge2 = Edge(node2, node3, 11)
     private val edge3 = Edge(node1, node3, 12)
 
-    private val graph = NewNodeGraph(node1,
-            NewNodeGraph(node2,
-                    NewNodeGraph(node3,
-                            NewEdgeGraph(edge1,
-                                    NewEdgeGraph(edge2,
-                                            NewEdgeGraph(edge3, EmptyGraph))))))
+    private val graph = NewEdgeGraph(edge1,
+            NewEdgeGraph(edge2,
+                    NewEdgeGraph(edge3,
+                            NewNodeGraph(node1,
+                                    NewNodeGraph(node2,
+                                            NewNodeGraph(node3, EmptyGraph))))))
 
     @Test
     fun `should contains all nodes`() {
@@ -111,15 +111,5 @@ internal class NewNodeGraphTest {
     @Test
     fun `should throw exception when last node already exists`() {
         assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
-    }
-
-    @Test
-    fun `should throw exception when first edge already exists`() {
-        assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge1) })
-    }
-
-    @Test
-    fun `should throw exception when last edge already exists`() {
-        assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge3) })
     }
 }

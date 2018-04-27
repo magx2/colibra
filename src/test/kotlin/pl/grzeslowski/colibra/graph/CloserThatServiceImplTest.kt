@@ -69,7 +69,7 @@ internal class CloserThatServiceImplTest {
         val node4 = Node("s")
         val node5 = Node("v")
         val graph = graphHelper.newGraph(
-                setOf(node, node1, node2, node3),
+                setOf(node, node1, node2, node3, node4, node5),
                 setOf(
                         Edge(node, node1, 1),
                         Edge(node1, node2, 2),
@@ -97,7 +97,7 @@ internal class CloserThatServiceImplTest {
         val node4 = Node("a")
         val node5 = Node("v")
         val graph = graphHelper.newGraph(
-                setOf(node, node1, node2, node3),
+                setOf(node, node1, node2, node3, node4, node5),
                 setOf(
                         Edge(node, node1, 10),
                         Edge(node, node4, 1),

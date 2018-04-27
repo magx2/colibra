@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service
 class GraphHelper {
     fun newGraph(nodes: Set<Node>, edges: Set<Edge>): Graph {
         val withNodes = nodes.stream().reduce(EmptyGraph, { g, n -> g.addNode(n) }, this::graphCombiner)
-        val withEdges = edges.stream().reduce(EmptyGraph, { g, edge -> g.addEdge(edge) }, this::graphCombiner)
-        return graphCombiner(withNodes, withEdges)
+        return edges.stream().reduce(withNodes, { g, edge -> g.addEdge(edge) }, this::graphCombiner)
     }
 
     private fun graphCombiner(g1: Graph, g2: Graph): Graph =

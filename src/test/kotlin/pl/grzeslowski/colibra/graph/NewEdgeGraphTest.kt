@@ -3,6 +3,7 @@ package pl.grzeslowski.colibra.graph
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
 
 internal class NewEdgeGraphTest {
     private val node1 = Node("1")
@@ -92,7 +93,7 @@ internal class NewEdgeGraphTest {
 
         // then
         assertThat(graphWithNode.containsNode(node6)).isFalse()
-        assertThat(graphWithNode.edges()).containsExactlyInAnyOrder(edge1, edge2, edge3)
+        assertThat(graphWithNode.edges()).containsExactlyInAnyOrder(edge1, edge2)
     }
 
     @Test
@@ -103,7 +104,7 @@ internal class NewEdgeGraphTest {
 
         // then
         assertThat(graphWithNode.containsNode(node1)).isFalse()
-        assertThat(graphWithNode.edges()).containsExactlyInAnyOrder(edge1, edge2, edge3)
+        assertThat(graphWithNode.edges()).containsExactlyInAnyOrder(edge2, edge3)
     }
 
     @Test
@@ -122,13 +123,29 @@ internal class NewEdgeGraphTest {
     }
 
     @Test
-    fun `should throw exception when first edge already exists`() {
-        Assertions.assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge1) })
+    fun `should throw exception when from node in edge does not exists`() {
+
+        // given
+        val edge = Edge(Node("999"), node6, 100)
+
+        // when
+        val addEdge = Executable { graph.addEdge(edge) }
+
+        // then
+        Assertions.assertThrows(NodeNotFound::class.java, addEdge)
     }
 
     @Test
-    fun `should throw exception when last edge already exists`() {
-        Assertions.assertThrows(EdgeAlreadyExists::class.java, { graph.addEdge(edge3) })
+    fun `should throw exception when to node in edge does not exists`() {
+
+        // given
+        val edge = Edge(node6, Node("999"), 100)
+
+        // when
+        val addEdge = Executable { graph.addEdge(edge) }
+
+        // then
+        Assertions.assertThrows(NodeNotFound::class.java, addEdge)
     }
 
     private fun assertThatGraphContainsAllNodes() = assertThatGraphContainsAllNodes(graph)

@@ -3,6 +3,7 @@ package pl.grzeslowski.colibra.graph
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.function.Executable
 
 internal class EmptyGraphTest {
     private val graph = EmptyGraph
@@ -46,9 +47,9 @@ internal class EmptyGraphTest {
     fun `should add edge`() {
 
         // when
-        val graphWithEdge = graph.addEdge(edge)
+        val graphWithEdge = Executable { graph.addEdge(edge) }
 
         // then
-        assertThat(graphWithEdge.edges()).containsExactly(edge)
+        assertThrows(NodeNotFound::class.java, graphWithEdge)
     }
 }

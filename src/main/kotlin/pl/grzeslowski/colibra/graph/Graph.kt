@@ -65,8 +65,11 @@ class NewNodeGraph(val newNode: Node,
 class NewEdgeGraph(val newEdge: Edge,
                    val parentGraph: Graph) : Graph() {
     init {
-        if (parentGraph.edges().contains(newEdge)) {
-            throw EdgeAlreadyExists(newEdge)
+        if (parentGraph.containsNode(newEdge.from).not()) {
+            throw NodeNotFound(newEdge.from)
+        }
+        if (parentGraph.containsNode(newEdge.to).not()) {
+            throw NodeNotFound(newEdge.to)
         }
     }
 
@@ -74,7 +77,12 @@ class NewEdgeGraph(val newEdge: Edge,
 
     override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)
 
-    override fun removeNode(node: Node) = NewEdgeGraph(newEdge, parentGraph.removeNode(node))
+    override fun removeNode(node: Node) =
+            when (node) {
+                newEdge.from -> parentGraph.removeNode(node)
+                newEdge.to -> parentGraph.removeNode(node)
+                else -> NewEdgeGraph(newEdge, parentGraph.removeNode(node))
+            }
 
     override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
 
