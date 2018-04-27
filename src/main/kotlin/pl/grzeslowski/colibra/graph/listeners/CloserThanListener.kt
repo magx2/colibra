@@ -13,9 +13,9 @@ import pl.grzeslowski.colibra.server.ServerMessage
 import java.util.stream.Collectors
 
 @Component
-class ShortestPathListener(private val graphRepository: GraphRepository,
-                           private val closerThanService: CloserThanService) : NewMessageListener {
-    private val logger = LoggerFactory.getLogger(ShortestPathListener::class.java)
+class CloserThanListener(private val graphRepository: GraphRepository,
+                         private val closerThanService: CloserThanService) : NewMessageListener {
+    private val logger = LoggerFactory.getLogger(CloserThanListener::class.java)
     private val prefix = "CLOSER THAN "
     override fun onNewMessage(clientMessage: ClientMessage, channel: ColibraChannel): Boolean =
             if (clientMessage.message.startsWith(prefix)) {

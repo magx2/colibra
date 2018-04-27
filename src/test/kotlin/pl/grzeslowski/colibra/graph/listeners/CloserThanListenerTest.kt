@@ -24,9 +24,9 @@ import kotlin.Comparator
 @SpringBootTest
 @ExtendWith(SpringExtension::class)
 @ActiveProfiles(testProfileName)
-internal class ShortestPathListenerTest {
+internal class CloserThanListenerTest {
     @Autowired
-    lateinit var listener: ShortestPathListener
+    lateinit var listener: CloserThanListener
     @Autowired
     lateinit var graphHelper: GraphHelper
     @MockBean
