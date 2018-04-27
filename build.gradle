@@ -1,3 +1,7 @@
+import java.util.concurrent.TimeUnit
+
+import static java.util.concurrent.TimeUnit.SECONDS
+
 buildscript {
 	ext {
 		kotlinVersion = '1.2.20'
@@ -65,3 +69,29 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+task("acceptanceTest") {
+	doLast {
+		def serverProc
+		final server = new Thread({
+			println " > starting server"
+			serverProc = "java -jar $jar.archivePath.absolutePath".execute()
+		})
+		server.setDaemon(true)
+		server.start()
+		println " > sleeping"
+		SECONDS.sleep(30)
+
+		println " > starting test"
+		final proc = "java -jar testclient.jar debug".execute()
+		println proc.text
+		println "> killing server"
+		//noinspection GroovyVariableNotAssigned
+		serverProc.destroyForcibly()
+		while (serverProc.isAlive()) {
+			println " > waiting to kill..."
+			SECONDS.sleep(1)
+		}
+	}
+}
+tasks.acceptanceTest.dependsOn "test", "build"
