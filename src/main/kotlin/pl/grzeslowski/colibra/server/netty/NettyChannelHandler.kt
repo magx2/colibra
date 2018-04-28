@@ -10,15 +10,16 @@ import pl.grzeslowski.colibra.server.*
 import pl.grzeslowski.colibra.server.session.Session
 
 @Scope("prototype")
-//@Sharable
 @Component
 class NettyChannelHandler(private val session: Session,
                           private val newChannelListeners: Set<NewChannelListener>,
                           private val newMessageListener: Set<NewMessageListener>,
                           private val timeoutListener: TimeoutListener) : SimpleChannelInboundHandler<ClientMessage>() {
     private val log = LoggerFactory.getLogger(NettyChannelHandler::class.java)
+    private lateinit var channel: NettyChanel
 
     override fun channelActive(ctx: ChannelHandlerContext) {
+        channel = createColibraChannel(ctx)
         newChannelListeners.forEach { listener -> listener.onNewChannel(createColibraChannel(ctx)) }
     }
 
@@ -37,7 +38,6 @@ class NettyChannelHandler(private val session: Session,
 
     override fun channelRead0(ctx: ChannelHandlerContext, msg: ClientMessage) {
         log.trace("channelRead0 {}:{}", ctx.name(), msg)
-        val channel = createColibraChannel(ctx)
         val someoneHandledThisMessage = newMessageListener.stream()
                 .map { listener -> listener.onNewMessage(msg, channel) }
                 .filter { it }
