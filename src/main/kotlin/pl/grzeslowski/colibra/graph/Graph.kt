@@ -1,129 +1,76 @@
 package pl.grzeslowski.colibra.graph
 
-import java.util.*
 import java.util.Collections.unmodifiableSet
+import java.util.stream.Collectors
 
-sealed class Graph {
-    abstract fun addNode(node: Node): Graph
+class Graph private constructor(private val nodes: Set<Node>, private val edges: Set<Edge>) {
+    constructor() : this(setOf(), setOf())
 
-    abstract fun addEdge(edge: Edge): Graph
+    fun addNode(node: Node): Graph {
+        if (containsNode(node)) {
+            throw NodeAlreadyExists(node)
+        }
+        val newNodes = HashSet<Node>(nodes)
+        newNodes.add(node)
+        return Graph(unmodifiableSet(newNodes), edges)
+    }
 
-    abstract fun removeNode(node: Node): Graph
+    fun addEdge(edge: Edge): Graph {
+        val containsFrom = containsNode(edge.from)
+        val containsTo = containsNode(edge.to)
+        if (containsFrom.not() && containsTo.not()) {
+            throw NodesNotFound(edge.from, edge.to)
+        } else if (containsFrom.not()) {
+            throw NodeNotFound(edge.from)
+        } else if (containsTo.not()) {
+            throw NodeNotFound(edge.to)
+        }
+        val newEdges = HashSet<Edge>(edges)
+        newEdges.add(edge)
+        return Graph(nodes, unmodifiableSet(newEdges))
+    }
 
-    abstract fun removeEdge(from: Node, to: Node): Graph
+    fun removeNode(node: Node) =
+            if (containsNode(node)) {
+                Graph(
+                        nodes.stream()
+                                .filter { n -> n != node }
+                                .collect(Collectors.toSet()),
+                        edges.stream()
+                                .filter { edge -> edge.from != node }
+                                .filter { edge -> edge.to != node }
+                                .collect(Collectors.toSet())
+                )
+            } else {
+                throw NodeNotFound(node)
+            }
 
-    abstract fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean): Graph
+    fun removeEdge(from: Node, to: Node) =
+            Graph(
+                    nodes,
+                    edges.stream()
+                            .filter { edge -> edge.from != from }
+                            .filter { edge -> edge.to != to }
+                            .collect(Collectors.toSet())
+            )
 
-    abstract fun containsNode(node: Node): Boolean
+    fun containsNode(node: Node) =
+            nodes.stream()
+                    .anyMatch { n -> n == node }
 
-    abstract fun edges(): Set<Edge>
+    fun edges() = edges
+
+    override fun toString(): String {
+        val nodesName = nodes.stream()
+                .map { it.name }
+                .collect(Collectors.joining(",", "nodes = [", "]"))
+        val edgesName = edges.stream()
+                .map { it.toString() }
+                .collect(Collectors.joining(",", "edges = [", "]"))
+        return "Graph[$nodesName, $edgesName]"
+    }
 }
 
 data class Node(val name: String)
 
 data class Edge(val from: Node, val to: Node, val weight: Int)
-
-class NewNodeGraph(val newNode: Node,
-                   val parentGraph: Graph) : Graph() {
-    init {
-        if (parentGraph.containsNode(newNode)) {
-            throw NodeAlreadyExists(newNode)
-        }
-    }
-
-    override fun addNode(node: Node) = NewNodeGraph(node, this)
-
-    override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)
-
-    override fun removeNode(node: Node) =
-            when (node) {
-                newNode -> parentGraph
-                else -> NewNodeGraph(newNode, parentGraph.removeNode(node))
-            }
-
-    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
-
-    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean): Graph {
-        val newParentGraph = when (newNode) {
-            from -> parentGraph.removeEdge(from, to, true, toFound)
-            to -> parentGraph.removeEdge(from, to, fromFound, true)
-            else -> parentGraph.removeEdge(from, to, fromFound, toFound)
-        }
-        return NewNodeGraph(newNode, newParentGraph)
-    }
-
-    override fun containsNode(node: Node) =
-            when (node) {
-                newNode -> true
-                else -> parentGraph.containsNode(node)
-            }
-
-    override fun edges() = parentGraph.edges()
-}
-
-
-class NewEdgeGraph(val newEdge: Edge,
-                   val parentGraph: Graph) : Graph() {
-    init {
-        if (parentGraph.containsNode(newEdge.from).not()) {
-            throw NodeNotFound(newEdge.from)
-        }
-        if (parentGraph.containsNode(newEdge.to).not()) {
-            throw NodeNotFound(newEdge.to)
-        }
-    }
-
-    override fun addNode(node: Node) = NewNodeGraph(node, this)
-
-    override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)
-
-    override fun removeNode(node: Node) =
-            when (node) {
-                newEdge.from -> parentGraph.removeNode(node)
-                newEdge.to -> parentGraph.removeNode(node)
-                else -> NewEdgeGraph(newEdge, parentGraph.removeNode(node))
-            }
-
-    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
-
-    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean) =
-            if (newEdge.from == from && newEdge.to == to) {
-                parentGraph.removeEdge(from, to, fromFound, toFound)
-            } else {
-                NewEdgeGraph(newEdge, parentGraph.removeEdge(from, to, fromFound, toFound))
-            }
-
-    override fun containsNode(node: Node) = parentGraph.containsNode(node)
-
-    override fun edges(): Set<Edge> {
-        val parentEdges = parentGraph.edges()
-        val edges = HashSet(parentEdges)
-        edges.add(newEdge)
-        return unmodifiableSet(edges)
-    }
-}
-
-object EmptyGraph : Graph() {
-    override fun addNode(node: Node) = NewNodeGraph(node, this)
-
-    override fun addEdge(edge: Edge) = NewEdgeGraph(edge, this)
-
-    override fun removeNode(node: Node) = throw NodeNotFound(node)
-
-    override fun removeEdge(from: Node, to: Node) = removeEdge(from, to, false, false)
-
-    override fun removeEdge(from: Node, to: Node, fromFound: Boolean, toFound: Boolean) =
-            if (fromFound.not() && toFound.not()) {
-                throw NodesNotFound(from, to)
-            } else if (fromFound.not()) {
-                throw NodeNotFound(from)
-            } else if (toFound.not()) {
-                throw NodeNotFound(to)
-            } else {
-                this
-            }
-
-    override fun containsNode(node: Node) = false
-
-    override fun edges() = setOf<Edge>()
-}

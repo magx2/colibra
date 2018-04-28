@@ -41,7 +41,7 @@ internal class CloserThanListenerTest {
     internal fun setUp() {
         channel = Mockito.mock(ColibraChannel::class.java)
 
-        graph = EmptyGraph
+        graph = Graph()
         given(graphRepository.getReadOnlyGraph()).willReturn(graph)
     }
 

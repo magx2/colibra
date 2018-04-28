@@ -17,7 +17,7 @@ interface GraphRepository {
 @Repository
 class InMemoryGraphRepository : GraphRepository {
     private val lock = Any()
-    private var graph: Graph = EmptyGraph
+    private var graph: Graph = Graph()
 
     override fun addNode(node: Node) {
         synchronized(lock) {

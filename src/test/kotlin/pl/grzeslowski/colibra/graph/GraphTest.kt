@@ -1,13 +1,13 @@
 package pl.grzeslowski.colibra.graph
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
 import java.util.*
 import java.util.stream.Stream
 
-internal class NewEdgeGraphTest {
+internal class GraphTest {
     private val node1 = Node("1")
     private val node2 = Node("2")
     private val node3 = Node("3")
@@ -19,16 +19,31 @@ internal class NewEdgeGraphTest {
     private val edge2 = Edge(node3, node4, 11)
     private val edge3 = Edge(node5, node6, 12)
 
-    private val graph = NewEdgeGraph(edge1,
-            NewEdgeGraph(edge2,
-                    NewEdgeGraph(edge3,
-                            NewNodeGraph(node1,
-                                    NewNodeGraph(node2,
-                                            NewNodeGraph(node3,
-                                                    NewNodeGraph(node4,
-                                                            NewNodeGraph(node5,
-                                                                    NewNodeGraph(node6,
-                                                                            EmptyGraph)))))))))
+    private val graph = Graph()
+            .addNode(node1)
+            .addNode(node2)
+            .addNode(node3)
+            .addNode(node4)
+            .addNode(node5)
+            .addNode(node6)
+            .addEdge(edge1)
+            .addEdge(edge2)
+            .addEdge(edge3)
+
+    @Test
+    fun `should not contain any edges`() {
+        assertThat(Graph().edges()).isEmpty()
+    }
+
+    @Test
+    fun `should not contain node`() {
+        assertThat(Graph().containsNode(node1)).isFalse()
+    }
+
+    @Test
+    fun `should thr error on removing node`() {
+        assertThrows(NodeNotFound::class.java, { Graph().removeNode(node1) })
+    }
 
     @Test
     fun `should contains all init edges`() {
@@ -54,7 +69,7 @@ internal class NewEdgeGraphTest {
     }
 
     @Test
-    fun `should remove first edge`() {
+    fun `should remove last edge`() {
 
         // when
         val edges = graph.removeEdge(edge3.from, edge3.to).edges()
@@ -64,7 +79,7 @@ internal class NewEdgeGraphTest {
     }
 
     @Test
-    fun `should remove last edge`() {
+    fun `should remove first edge`() {
 
         // when
         val edges = graph.removeEdge(edge1.from, edge1.to).edges()
@@ -88,7 +103,7 @@ internal class NewEdgeGraphTest {
     }
 
     @Test
-    fun `should remove first node`() {
+    fun `should remove last node`() {
 
         // when
         val graphWithNode = graph.removeNode(node6)
@@ -99,7 +114,7 @@ internal class NewEdgeGraphTest {
     }
 
     @Test
-    fun `should remove last node`() {
+    fun `should remove first node`() {
 
         // when
         val graphWithNode = graph.removeNode(node1)
@@ -111,17 +126,22 @@ internal class NewEdgeGraphTest {
 
     @Test
     fun `should contains all nodes`() {
-        assertThatGraphContainsAllNodes()
+        assertThat(graph.containsNode(node1)).isTrue()
+        assertThat(graph.containsNode(node2)).isTrue()
+        assertThat(graph.containsNode(node3)).isTrue()
+        assertThat(graph.containsNode(node4)).isTrue()
+        assertThat(graph.containsNode(node5)).isTrue()
+        assertThat(graph.containsNode(node6)).isTrue()
     }
 
     @Test
     fun `should throw exception when first node already exists`() {
-        Assertions.assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node1) })
+        assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node1) })
     }
 
     @Test
     fun `should throw exception when last node already exists`() {
-        Assertions.assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
+        assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
     }
 
     @Test
@@ -134,7 +154,7 @@ internal class NewEdgeGraphTest {
         val addEdge = Executable { graph.addEdge(edge) }
 
         // then
-        Assertions.assertThrows(NodeNotFound::class.java, addEdge)
+        assertThrows(NodeNotFound::class.java, addEdge)
     }
 
     @Test
@@ -147,7 +167,20 @@ internal class NewEdgeGraphTest {
         val addEdge = Executable { graph.addEdge(edge) }
 
         // then
-        Assertions.assertThrows(NodeNotFound::class.java, addEdge)
+        assertThrows(NodeNotFound::class.java, addEdge)
+    }
+
+    @Test
+    fun `should throw exception when from and to nodes in edge does not exists`() {
+
+        // given
+        val edge = Edge(Node(("998")), Node("999"), 100)
+
+        // when
+        val addEdge = Executable { graph.addEdge(edge) }
+
+        // then
+        assertThrows(NodesNotFound::class.java, addEdge)
     }
 
     @Test
@@ -190,16 +223,5 @@ internal class NewEdgeGraphTest {
             else -> throw IllegalStateException("Bad random")
         }
         return Edge(from, to, random.nextInt(100))
-    }
-
-    private fun assertThatGraphContainsAllNodes() = assertThatGraphContainsAllNodes(graph)
-
-    private fun assertThatGraphContainsAllNodes(graph: Graph) {
-        assertThat(graph.containsNode(node1)).isTrue()
-        assertThat(graph.containsNode(node2)).isTrue()
-        assertThat(graph.containsNode(node3)).isTrue()
-        assertThat(graph.containsNode(node4)).isTrue()
-        assertThat(graph.containsNode(node5)).isTrue()
-        assertThat(graph.containsNode(node6)).isTrue()
     }
 }

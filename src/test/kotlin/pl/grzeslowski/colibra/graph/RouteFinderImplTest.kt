@@ -44,7 +44,7 @@ internal class RouteFinderImplTest {
     fun `should not find path in empty graph`() {
 
         // given
-        val graph = EmptyGraph
+        val graph = Graph()
 
         // when
         val shortestPath = finder.shortestPath(graph, node1, node2)
