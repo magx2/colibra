@@ -16,8 +16,8 @@ import pl.grzeslowski.colibra.spring.NotTestProfile
 class NettyServer(private val serverProperties: ServerProperties,
                   channelInitializer: NettyChannelInitializer) : Server {
     private val log = LoggerFactory.getLogger(NettyServer::class.java)
-    private val bossGroup = NioEventLoopGroup()
-    private val workerGroup = NioEventLoopGroup()
+    private val bossGroup = NioEventLoopGroup(serverProperties.bossThreads)
+    private val workerGroup = NioEventLoopGroup(serverProperties.workerThreads)
     private val channelFuture: ChannelFuture
 
     init {

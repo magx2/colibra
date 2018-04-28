@@ -8,4 +8,6 @@ import org.springframework.context.annotation.Configuration
 class ServerProperties {
     var port: Int = -1
     var timeoutInSec: Int = -1
+    var bossThreads: Int = -1
+    var workerThreads: Int = -1
 }

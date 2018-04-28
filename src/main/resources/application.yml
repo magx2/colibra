@@ -1,7 +1,8 @@
 server:
     port: 50000
     timeout-in-sec: 30
-logging.level.pl.grzeslowski.colibra: trace
+    boss-threads: 5
+    worker-threads: 20
 logging.level:
-  root: info
-  pl.grzeslowski.colibra: trace
+  root: error
+  pl.grzeslowski.colibra: error
