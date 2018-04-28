@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
 import java.util.*
+import java.util.stream.Collectors
 import java.util.stream.Stream
 
 internal class GraphTest {
@@ -188,12 +189,13 @@ internal class GraphTest {
 
         // given
         var graphWithALotOfEdges = graph
-        Stream.generate { randomEdge() }
+        val randomEdges = Stream.generate { randomEdge() }
                 .parallel()
                 .limit(100_000)
-                .forEach { edge ->
-                    graphWithALotOfEdges = graphWithALotOfEdges.addEdge(edge)
-                }
+                .collect(Collectors.toSet())
+        randomEdges.forEach { edge ->
+            graphWithALotOfEdges = graphWithALotOfEdges.addEdge(edge)
+        }
 
         // when
         val edges = graphWithALotOfEdges.edges()
