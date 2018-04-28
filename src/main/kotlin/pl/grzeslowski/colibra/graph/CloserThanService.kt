@@ -3,10 +3,11 @@ package pl.grzeslowski.colibra.graph
 import org.springframework.stereotype.Service
 import java.util.SortedSet
 import java.util.TreeSet
-import java.util.stream.Collectors
-import java.util.stream.Stream
+import java.util.stream.Collectors.toCollection
 import kotlin.Comparator
+import kotlin.collections.HashMap
 import kotlin.collections.HashSet
+import kotlin.collections.set
 
 interface CloserThanService {
     fun closerThan(graph: Graph, node: Node, weight: Int): SortedSet<Node>
@@ -14,35 +15,52 @@ interface CloserThanService {
 
 @Service
 class CloserThatServiceImpl : CloserThanService {
+    private val undefined = Int.MAX_VALUE
     private val comparator = Comparator<Node> { o1, o2 -> o1.name.compareTo(o2.name) }
 
-    override fun closerThan(graph: Graph, node: Node, weight: Int): SortedSet<Node> =
-            if (graph.containsNode(node)) {
-                closerThan(graph.edges(), node, weight)
-                        .collect(Collectors.toCollection({ TreeSet<Node>(comparator) }))
-            } else {
-                throw NodeNotFound(node)
+    override fun closerThan(graph: Graph, node: Node, weight: Int): SortedSet<Node> {
+        if (graph.containsNode(node).not()) {
+            throw NodeNotFound(node)
+        }
+
+        val adjacencyList = graph.adjacencyList
+
+        val distances = HashMap<Node, Int>()
+        graph.nodes().forEach { distances[it] = undefined }
+        distances[node] = 0
+
+        val toVisitNodes = HashSet<Node>()
+        toVisitNodes.add(node)
+
+        while (toVisitNodes.isNotEmpty()) {
+            val current = removeFirst(toVisitNodes)
+            val currentDistance = distances[current]!!
+
+            val neighbours = adjacencyList[current]!!
+            neighbours.forEach { neighbour ->
+                val neighbourDistance = distances[neighbour.node]!!
+                val newDistance = currentDistance + neighbour.weight
+                if (neighbourDistance == undefined || neighbourDistance > newDistance) {
+                    distances[neighbour.node] = newDistance
+                }
+                if (distances[neighbour.node]!! <= weight) {
+                    toVisitNodes.add(neighbour.node)
+                }
             }
+        }
 
-    private fun closerThan(edges: Set<Edge>, node: Node, weight: Int, sumWeight: Int = 0, nodes: Set<Node> = setOf()): Stream<Node> =
-            Stream.concat(
-                    edges.stream()
-                            .filter { edge -> edge.from == node }
-                            .filter { edge -> sumWeight + edge.weight <= weight }
-                            .flatMap { edge ->
-                                closerThan(removeEdge(edge, edges), edge.to, weight, sumWeight + edge.weight, addNode(edge.to, nodes))
-                            },
-                    nodes.stream())
-
-    private fun addNode(node: Node, nodes: Set<Node>): Set<Node> {
-        val new = HashSet(nodes)
-        new.add(node)
-        return new
+        return distances.entries
+                .stream()
+                .filter { it.value <= weight }
+                .map { it.key }
+                .filter { it != node }
+                .collect(toCollection({ TreeSet(comparator) }))
     }
 
-    private fun removeEdge(edge: Edge, edges: Set<Edge>) =
-            edges.stream()
-                    .filter { e -> e != edge }
-                    .collect(Collectors.toSet())
-
+    private fun removeFirst(nodes: MutableSet<Node>): Node {
+        val iterator = nodes.iterator()
+        val node = iterator.next()
+        iterator.remove()
+        return node
+    }
 }
