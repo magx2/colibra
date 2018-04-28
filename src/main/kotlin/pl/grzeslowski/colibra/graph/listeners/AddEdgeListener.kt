@@ -2,10 +2,7 @@ package pl.grzeslowski.colibra.graph.listeners
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import pl.grzeslowski.colibra.graph.Edge
-import pl.grzeslowski.colibra.graph.GraphRepository
-import pl.grzeslowski.colibra.graph.Node
-import pl.grzeslowski.colibra.graph.NodeNotFound
+import pl.grzeslowski.colibra.graph.*
 import pl.grzeslowski.colibra.server.ClientMessage
 import pl.grzeslowski.colibra.server.ColibraChannel
 import pl.grzeslowski.colibra.server.NewMessageListener
@@ -26,6 +23,9 @@ class AddEdgeListener(private val graphRepository: GraphRepository) : NewMessage
                     channel.write(ServerMessage("EDGE ADDED"))
                 } catch (ex: NodeNotFound) {
                     logger.error("Cannot find node", ex)
+                    channel.write(ServerMessage("ERROR: NODE NOT FOUND"))
+                } catch (ex: NodesNotFound) {
+                    logger.error("Cannot find nodes", ex)
                     channel.write(ServerMessage("ERROR: NODE NOT FOUND"))
                 }
                 true

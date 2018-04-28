@@ -11,10 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import pl.grzeslowski.colibra.graph.Edge
-import pl.grzeslowski.colibra.graph.GraphRepository
-import pl.grzeslowski.colibra.graph.Node
-import pl.grzeslowski.colibra.graph.NodeNotFound
+import pl.grzeslowski.colibra.graph.*
 import pl.grzeslowski.colibra.server.ClientMessage
 import pl.grzeslowski.colibra.server.ColibraChannel
 import pl.grzeslowski.colibra.server.ServerMessage
@@ -81,7 +78,7 @@ internal class AddEdgeListenerTest {
     }
 
     @Test
-    fun `should write message if node is duplicate`() {
+    fun `should write message if cannot find node`() {
 
         // given
         val nodeName1 = "N1"
@@ -90,6 +87,24 @@ internal class AddEdgeListenerTest {
         val message = ClientMessage("ADD EDGE $nodeName1 $nodeName2 $weight")
         val eddge = Edge(Node(nodeName1), Node(nodeName2), weight)
         BDDMockito.given(graphRepository.addEdge(eddge)).willThrow(NodeNotFound(Node(nodeName1)))
+
+        // when
+        listener.onNewMessage(message, channel)
+
+        // then
+        Mockito.verify(channel).write(ServerMessage("ERROR: NODE NOT FOUND"))
+    }
+
+    @Test
+    fun `should write message if cannot find nodes`() {
+
+        // given
+        val nodeName1 = "N1"
+        val nodeName2 = "N2"
+        val weight = 100
+        val message = ClientMessage("ADD EDGE $nodeName1 $nodeName2 $weight")
+        val eddge = Edge(Node(nodeName1), Node(nodeName2), weight)
+        BDDMockito.given(graphRepository.addEdge(eddge)).willThrow(NodesNotFound(Node(nodeName1), Node(nodeName2)))
 
         // when
         listener.onNewMessage(message, channel)
