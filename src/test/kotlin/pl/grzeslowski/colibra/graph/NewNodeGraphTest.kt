@@ -3,6 +3,8 @@ package pl.grzeslowski.colibra.graph
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import java.util.*
+import java.util.stream.Stream
 
 internal class NewNodeGraphTest {
     private val node1 = Node("1")
@@ -111,5 +113,29 @@ internal class NewNodeGraphTest {
     @Test
     fun `should throw exception when last node already exists`() {
         assertThrows(NodeAlreadyExists::class.java, { graph.addNode(node3) })
+    }
+
+    @Test
+    fun `should not throw stack overflow when there is a lot of edges`() {
+
+        // given
+        var graphWithALotOfNodes: Graph = graph
+        Stream.generate { randomNode() }
+                .parallel()
+                .limit(100_000)
+                .forEach { node ->
+                    graphWithALotOfNodes = graphWithALotOfNodes.addNode(node)
+                }
+
+        // when
+        val edges = graphWithALotOfNodes.edges()
+
+        // then
+        assertThat(edges).isNotEmpty
+    }
+
+    private fun randomNode(): Node {
+        val random = Random()
+        return Node("random-" + random.nextInt())
     }
 }

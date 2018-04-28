@@ -4,6 +4,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.function.Executable
+import java.util.*
+import java.util.stream.Stream
 
 internal class NewEdgeGraphTest {
     private val node1 = Node("1")
@@ -146,6 +148,48 @@ internal class NewEdgeGraphTest {
 
         // then
         Assertions.assertThrows(NodeNotFound::class.java, addEdge)
+    }
+
+    @Test
+    fun `should not throw stack overflow when there is a lot of edges`() {
+
+        // given
+        var graphWithALotOfEdges = graph
+        Stream.generate { randomEdge() }
+                .parallel()
+                .limit(100_000)
+                .forEach { edge ->
+                    graphWithALotOfEdges = graphWithALotOfEdges.addEdge(edge)
+                }
+
+        // when
+        val edges = graphWithALotOfEdges.edges()
+
+        // then
+        assertThat(edges).isNotEmpty
+    }
+
+    private fun randomEdge(): Edge {
+        val random = Random()
+        val from = when (random.nextInt(6)) {
+            0 -> node1
+            1 -> node2
+            2 -> node3
+            3 -> node4
+            4 -> node5
+            5 -> node6
+            else -> throw IllegalStateException("Bad random")
+        }
+        val to = when (random.nextInt(6)) {
+            0 -> node1
+            1 -> node2
+            2 -> node3
+            3 -> node4
+            4 -> node5
+            5 -> node6
+            else -> throw IllegalStateException("Bad random")
+        }
+        return Edge(from, to, random.nextInt(100))
     }
 
     private fun assertThatGraphContainsAllNodes() = assertThatGraphContainsAllNodes(graph)
