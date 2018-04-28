@@ -1,7 +1,6 @@
 package pl.grzeslowski.colibra.graph
 
 import org.springframework.stereotype.Service
-import java.util.stream.Collectors
 
 interface RouteFinder {
     fun shortestPath(graph: Graph, from: Node, to: Node): Int
@@ -24,14 +23,14 @@ class RouteFinderImpl : RouteFinder {
         var current = from
         while (unvisitedSet.isNotEmpty()) {
             val currentDistance = distances[current]!!
-            val unvisitedNeighbors = unvisitedNeighbors(current, unvisitedSet, graph)
-            unvisitedNeighbors.forEach { unvisitedNeighbor ->
-                val unvisitedNeighborDistance = distances[unvisitedNeighbor.node]!!
-                val newDistance = currentDistance + unvisitedNeighbor.weight
-                if (newDistance < unvisitedNeighborDistance) {
-                    distances[unvisitedNeighbor.node] = newDistance
-                }
-            }
+            unvisitedNeighbors(current, unvisitedSet, graph)
+                    .forEach { unvisitedNeighbor ->
+                        val unvisitedNeighborDistance = distances[unvisitedNeighbor.node]!!
+                        val newDistance = currentDistance + unvisitedNeighbor.weight
+                        if (newDistance < unvisitedNeighborDistance) {
+                            distances[unvisitedNeighbor.node] = newDistance
+                        }
+                    }
             unvisitedSet.remove(current)
             val newCurrent = distances.entries
                     .stream()
@@ -61,5 +60,4 @@ class RouteFinderImpl : RouteFinder {
             graph.adjacencyList[node]!!
                     .stream()
                     .filter { neighbour -> unvisitedSet.contains(neighbour.node) }
-                    .collect(Collectors.toSet())
 }
