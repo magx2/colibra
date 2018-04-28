@@ -4,6 +4,18 @@ import java.util.Collections.unmodifiableSet
 import java.util.stream.Collectors
 
 class Graph private constructor(private val nodes: Set<Node>, private val edges: Set<Edge>) {
+    val adjacencyList: Map<Node, Set<AdjacencyNode>> by lazy {
+        val adjacencyList = HashMap<Node, HashSet<AdjacencyNode>>()
+
+        nodes.forEach { node -> adjacencyList[node] = HashSet() }
+        edges.forEach { edge ->
+            val set = adjacencyList[edge.from]!!
+            set.add(AdjacencyNode(edge.to, edge.weight))
+        }
+
+        adjacencyList
+    }
+
     constructor() : this(setOf(), setOf())
 
     fun addNode(node: Node): Graph {
@@ -16,18 +28,22 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
     }
 
     fun addEdge(edge: Edge): Graph {
-        val containsFrom = containsNode(edge.from)
-        val containsTo = containsNode(edge.to)
-        if (containsFrom.not() && containsTo.not()) {
-            throw NodesNotFound(edge.from, edge.to)
-        } else if (containsFrom.not()) {
-            throw NodeNotFound(edge.from)
-        } else if (containsTo.not()) {
-            throw NodeNotFound(edge.to)
-        }
+        checkNodes(edge.from, edge.to)
         val newEdges = HashSet<Edge>(edges)
         newEdges.add(edge)
         return Graph(nodes, unmodifiableSet(newEdges))
+    }
+
+    fun checkNodes(node1: Node, node2: Node) {
+        val containsFrom = containsNode(node1)
+        val containsTo = containsNode(node2)
+        if (containsFrom.not() && containsTo.not()) {
+            throw NodesNotFound(node1, node2)
+        } else if (containsFrom.not()) {
+            throw NodeNotFound(node1)
+        } else if (containsTo.not()) {
+            throw NodeNotFound(node2)
+        }
     }
 
     fun removeNode(node: Node) =
@@ -60,6 +76,8 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
 
     fun edges() = edges
 
+    fun nodes() = nodes
+
     override fun toString(): String {
         val nodesName = nodes.stream()
                 .map { it.name }
@@ -74,3 +92,5 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
 data class Node(val name: String)
 
 data class Edge(val from: Node, val to: Node, val weight: Int)
+
+data class AdjacencyNode(val node: Node, val weight: Int)

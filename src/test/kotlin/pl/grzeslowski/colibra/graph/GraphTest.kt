@@ -32,6 +32,11 @@ internal class GraphTest {
             .addEdge(edge3)
 
     @Test
+    fun `should not contain any nodes`() {
+        assertThat(Graph().nodes()).isEmpty()
+    }
+
+    @Test
     fun `should not contain any edges`() {
         assertThat(Graph().edges()).isEmpty()
     }
@@ -54,6 +59,16 @@ internal class GraphTest {
 
         // then
         assertThat(edges).containsExactlyInAnyOrder(edge1, edge2, edge3)
+    }
+
+    @Test
+    fun `should contains all init nodes`() {
+
+        // when
+        val nodes = graph.nodes()
+
+        // then
+        assertThat(nodes).containsExactlyInAnyOrder(node1, node2, node3, node4, node5, node6)
     }
 
     @Test

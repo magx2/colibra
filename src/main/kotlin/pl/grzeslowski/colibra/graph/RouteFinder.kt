@@ -4,42 +4,58 @@ import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 
 interface RouteFinder {
-    fun shortestPath(graph: Graph, a: Node, b: Node): Int
+    fun shortestPath(graph: Graph, from: Node, to: Node): Int
 }
 
 @Service
 class RouteFinderImpl : RouteFinder {
-    override fun shortestPath(graph: Graph, a: Node, b: Node) = shortestPath(a, b, 0, graph.edges())
+    private val undefined = Int.MAX_VALUE
 
-    private fun shortestPath(a: Node, b: Node, weight: Int, edges: Set<Edge>): Int =
-            findAllEdges(a, edges)
+    /**
+     * Nothing new see <a href="https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Dijkstra's algorithm</a>
+     */
+    override fun shortestPath(graph: Graph, from: Node, to: Node): Int {
+        graph.checkNodes(from, to)
+        val unvisitedSet = HashSet<Node>(graph.nodes())
+        val distances = HashMap<Node, Int>()
+        graph.nodes().forEach { node -> distances[node] = undefined }
+        distances[from] = 0
+
+        var current = from
+        while (true) {
+            val currentDistance = distances[current]!!
+            val unvisitedNeighbors = unvisitedNeighbors(current, unvisitedSet, graph)
+            unvisitedNeighbors.forEach { unvisitedNeighbor ->
+                val unvisitedNeighborDistance = distances[unvisitedNeighbor.node]!!
+                val newDistance = currentDistance + unvisitedNeighbor.weight
+                if (newDistance < unvisitedNeighborDistance) {
+                    distances[unvisitedNeighbor.node] = newDistance
+                }
+            }
+            unvisitedSet.remove(current)
+            val newCurrent = distances.entries
                     .stream()
-                    .mapToInt { edge ->
-                        if (endsIn(b, edge)) {
-                            weight + edge.weight
-                        } else {
-                            shortestPath(oppositeNode(a, edge), b, weight + edge.weight, removeEdge(edge, edges))
-                        }
-                    }
-                    .min()
-                    .orElse(Int.MAX_VALUE)
-
-    private fun findAllEdges(node: Node, edges: Set<Edge>) =
-            edges.stream()
-                    .filter { edge -> endsIn(node, edge) }
-                    .collect(Collectors.toSet())
-
-    private fun endsIn(node: Node, edge: Edge) = edge.from == node || edge.to == node
-
-    private fun oppositeNode(node: Node, edge: Edge) =
-            when (node) {
-                edge.from -> edge.to
-                edge.to -> edge.from
-                else -> throw IllegalArgumentException("Node $node is not in edge $edge!")
+                    .filter { entry -> unvisitedSet.contains(entry.key) }
+                    .sorted { o1, o2 -> o1.value.compareTo(o2.value) }
+                    .map { it.key }
+                    .findFirst()
+            if (newCurrent.isPresent) {
+                current = newCurrent.get()
+            } else {
+                break
             }
 
-    private fun removeEdge(edge: Edge, edges: Set<Edge>) =
-            edges.stream()
-                    .filter { it != edge }
+            if (distances[current] == undefined) {
+                break
+            }
+        }
+
+        return distances[to]!!
+    }
+
+    private fun unvisitedNeighbors(node: Node, unvisitedSet: HashSet<Node>, graph: Graph) =
+            graph.adjacencyList[node]!!
+                    .stream()
+                    .filter { neighbour -> unvisitedSet.contains(neighbour.node) }
                     .collect(Collectors.toSet())
 }

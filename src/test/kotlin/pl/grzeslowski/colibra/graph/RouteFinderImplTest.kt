@@ -1,8 +1,10 @@
 package pl.grzeslowski.colibra.graph
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.function.Executable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
@@ -41,16 +43,32 @@ internal class RouteFinderImplTest {
     private val edge19 = Edge(node1, node9, 1)
 
     @Test
-    fun `should not find path in empty graph`() {
+    fun `should throw NodesNotFound in empty graph`() {
 
         // given
         val graph = Graph()
 
         // when
-        val shortestPath = finder.shortestPath(graph, node1, node2)
+        val shortestPath = Executable { finder.shortestPath(graph, node1, node2) }
 
         // then
-        assertThat(shortestPath).isEqualTo(Int.MAX_VALUE)
+        assertThrows(NodesNotFound::class.java, shortestPath)
+    }
+
+    @Test
+    fun `should throw NodeNotFound if node was not found in graph`() {
+
+        // given
+        val graph = graphHelper.newGraph(
+                setOf(node1, node2, node3, node4),
+                setOf(edge12, edge13, edge24, edge34)
+        )
+
+        // when
+        val shortestPath = Executable { finder.shortestPath(graph, node1, Node("not-found")) }
+
+        // then
+        assertThrows(NodeNotFound::class.java, shortestPath)
     }
 
     @Test
@@ -96,5 +114,22 @@ internal class RouteFinderImplTest {
 
         // then
         assertThat(shortestPath).isEqualTo(edge13.weight + edge37.weight + edge78.weight + edge68.weight)
+    }
+
+    @Test
+    fun `should find path in graph that is not connected`() {
+
+        // given
+        val to = Node("to")
+        val graph = graphHelper.newGraph(
+                setOf(node1, node2, node3, node4, node5, node6, node7, node8, node9, to),
+                setOf(edge12, edge13, edge19, edge24, edge34, edge16, edge25, edge16, edge37, edge38, edge78, edge68)
+        )
+
+        // when
+        val shortestPath = finder.shortestPath(graph, node1, to)
+
+        // then
+        assertThat(shortestPath).isEqualTo(Int.MAX_VALUE)
     }
 }
