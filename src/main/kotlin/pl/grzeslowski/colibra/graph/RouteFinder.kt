@@ -22,7 +22,7 @@ class RouteFinderImpl : RouteFinder {
         distances[from] = 0
 
         var current = from
-        while (true) {
+        while (unvisitedSet.isNotEmpty()) {
             val currentDistance = distances[current]!!
             val unvisitedNeighbors = unvisitedNeighbors(current, unvisitedSet, graph)
             unvisitedNeighbors.forEach { unvisitedNeighbor ->
@@ -46,6 +46,10 @@ class RouteFinderImpl : RouteFinder {
             }
 
             if (distances[current] == undefined) {
+                break
+            }
+
+            if (current == to) {
                 break
             }
         }

@@ -101,6 +101,22 @@ internal class RouteFinderImplTest {
     }
 
     @Test
+    fun `should choose smaller path`() {
+
+        // given
+        val graph = graphHelper.newGraph(
+                setOf(node1, node2, node3, node4),
+                setOf(edge12, edge13, edge24, edge34, Edge(node1, node4, 100000))
+        )
+
+        // when
+        val shortestPath = finder.shortestPath(graph, node1, node4)
+
+        // then
+        assertThat(shortestPath).isEqualTo(edge13.weight + edge34.weight)
+    }
+
+    @Test
     fun `should find path in longer graph`() {
 
         // given
