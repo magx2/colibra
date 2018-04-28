@@ -97,4 +97,17 @@ internal class RouteFinderImplTest {
         // then
         assertThat(shortestPath).isEqualTo(edge13.weight + edge37.weight + edge78.weight + edge68.weight)
     }
+
+    @Test
+    fun `should not throw stack overflow if graph is BIG`() {
+
+        // given
+        val bigGraph = graphHelper.randomBigGraph(graphHelper.newGraph(
+                setOf(node1, node2, node3, node4, node5, node6, node7, node8, node9),
+                setOf(edge12, edge13, edge19, edge24, edge34, edge16, edge25, edge16, edge37, edge38, edge78, edge68)
+        ))
+
+        // when
+        finder.shortestPath(bigGraph, node1, node2)
+    }
 }
