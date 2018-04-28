@@ -9,8 +9,7 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
 
         nodes.forEach { node -> adjacencyList[node] = HashSet() }
         edges.forEach { edge ->
-            val set = adjacencyList[edge.from]!!
-            set.add(AdjacencyNode(edge.to, edge.weight))
+            adjacencyList[edge.from]!!.add(AdjacencyNode(edge.to, edge.weight))
         }
 
         adjacencyList
@@ -51,11 +50,11 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
                 Graph(
                         nodes.stream()
                                 .filter { n -> n != node }
-                                .collect(Collectors.toSet()),
+                                .collect(Collectors.toCollection { HashSet<Node>() }),
                         edges.stream()
                                 .filter { edge -> edge.from != node }
                                 .filter { edge -> edge.to != node }
-                                .collect(Collectors.toSet())
+                                .collect(Collectors.toCollection { HashSet<Edge>() })
                 )
             } else {
                 throw NodeNotFound(node)
@@ -72,9 +71,7 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
         )
     }
 
-    fun containsNode(node: Node) =
-            nodes.stream()
-                    .anyMatch { n -> n == node }
+    fun containsNode(node: Node) = nodes.contains(node)
 
     fun edges() = edges
 
