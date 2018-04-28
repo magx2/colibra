@@ -61,14 +61,16 @@ class Graph private constructor(private val nodes: Set<Node>, private val edges:
                 throw NodeNotFound(node)
             }
 
-    fun removeEdge(from: Node, to: Node) =
-            Graph(
-                    nodes,
-                    edges.stream()
-                            .filter { edge -> edge.from != from }
-                            .filter { edge -> edge.to != to }
-                            .collect(Collectors.toSet())
-            )
+    fun removeEdge(from: Node, to: Node): Graph {
+        checkNodes(from, to)
+        return Graph(
+                nodes,
+                edges.stream()
+                        .filter { edge -> edge.from != from }
+                        .filter { edge -> edge.to != to }
+                        .collect(Collectors.toSet())
+        )
+    }
 
     fun containsNode(node: Node) =
             nodes.stream()
