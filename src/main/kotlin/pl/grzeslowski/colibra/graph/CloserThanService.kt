@@ -1,5 +1,6 @@
 package pl.grzeslowski.colibra.graph
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.SortedSet
 import java.util.TreeSet
@@ -9,12 +10,14 @@ import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 import kotlin.collections.set
 
+
 interface CloserThanService {
     fun closerThan(graph: Graph, node: Node, weight: Int): SortedSet<Node>
 }
 
 @Service
 class CloserThatServiceImpl : CloserThanService {
+    private val logger = LoggerFactory.getLogger(CloserThatServiceImpl::class.java)
     private val undefined = Int.MAX_VALUE
     private val comparator = Comparator<Node> { o1, o2 -> o1.name.compareTo(o2.name) }
 
@@ -31,9 +34,12 @@ class CloserThatServiceImpl : CloserThanService {
         val toVisitNodes = HashSet<Node>()
         toVisitNodes.add(node)
 
+        val visited = HashSet<Node>()
+
         while (toVisitNodes.isNotEmpty()) {
             val current = removeFirst(toVisitNodes)
-            val currentDistance = distances[current] ?: undefined
+            visited.add(current)
+            val currentDistance = distances[current]!!
 
             val neighbours = adjacencyList[current]!!
             neighbours.forEach { neighbour ->
@@ -42,7 +48,7 @@ class CloserThatServiceImpl : CloserThanService {
                 if (neighbourDistance == undefined || neighbourDistance > newDistance) {
                     distances[neighbour.node] = newDistance
                 }
-                if (newDistance <= weight) {
+                if (newDistance <= weight && visited.contains(neighbour.node).not()) {
                     toVisitNodes.add(neighbour.node)
                 }
             }

@@ -11,6 +11,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import pl.grzeslowski.colibra.spring.testProfileName
 
+
 @Suppress("SpringKotlinAutowiring")
 @SpringBootTest
 @ExtendWith(SpringExtension::class)
@@ -57,6 +58,28 @@ internal class CloserThatServiceImplTest {
 
         // then
         assertThat(closerThan).containsExactly(node2, node3, node1)
+    }
+
+    @Test
+    fun `should return set even if graph has cycles`() {
+
+        // given
+        val node1 = Node("z")
+        val node2 = Node("d")
+        val graph = graphHelper.newGraph(
+                setOf(node, node1, node2),
+                setOf(
+                        Edge(node, node1, 1),
+                        Edge(node1, node2, 2),
+                        Edge(node2, node, 3)
+                )
+        )
+
+        // when
+        val closerThan = service.closerThan(graph, node, 100)
+
+        // then
+        assertThat(closerThan).containsExactly(node2, node1)
     }
 
     @Test
