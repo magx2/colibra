@@ -54,7 +54,7 @@ internal class CloserThatServiceImplTest {
         )
 
         // when
-        val closerThan = service.closerThan(graph, node, 4)
+        val closerThan = service.closerThan(graph, node, 5)
 
         // then
         assertThat(closerThan).containsExactly(node2, node3, node1)
@@ -104,7 +104,7 @@ internal class CloserThatServiceImplTest {
         )
 
         // when
-        val closerThan = service.closerThan(graph, node, 4)
+        val closerThan = service.closerThan(graph, node, 5)
 
         // then
         assertThat(closerThan).containsExactly(node2, node3, node1)
@@ -132,7 +132,7 @@ internal class CloserThatServiceImplTest {
         )
 
         // when
-        val closerThan = service.closerThan(graph, node, 40)
+        val closerThan = service.closerThan(graph, node, 41)
 
         // then
         assertThat(closerThan).containsExactly(node4, node2, node3, node1)

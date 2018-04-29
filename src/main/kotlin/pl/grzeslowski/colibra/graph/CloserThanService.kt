@@ -45,10 +45,10 @@ class CloserThatServiceImpl : CloserThanService {
             neighbours.forEach { neighbour ->
                 val neighbourDistance = distances[neighbour.node] ?: undefined
                 val newDistance = currentDistance + neighbour.weight
-                if (neighbourDistance == undefined || neighbourDistance > newDistance) {
+                if (neighbourDistance > newDistance) {
                     distances[neighbour.node] = newDistance
-                }
-                if (newDistance <= weight && visited.contains(neighbour.node).not()) {
+                    toVisitNodes.add(neighbour.node)
+                } else if (visited.contains(neighbour.node).not()) {
                     toVisitNodes.add(neighbour.node)
                 }
             }
@@ -56,7 +56,7 @@ class CloserThatServiceImpl : CloserThanService {
 
         return distances.entries
                 .stream()
-                .filter { it.value <= weight }
+                .filter { it.value < weight }
                 .map { it.key }
                 .filter { it != node }
                 .collect(toCollection({ TreeSet(comparator) }))
