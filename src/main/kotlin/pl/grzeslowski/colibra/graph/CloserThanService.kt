@@ -26,7 +26,6 @@ class CloserThatServiceImpl : CloserThanService {
         val adjacencyList = graph.adjacencyList
 
         val distances = HashMap<Node, Int>()
-        graph.nodes().forEach { distances[it] = undefined }
         distances[node] = 0
 
         val toVisitNodes = HashSet<Node>()
@@ -34,16 +33,16 @@ class CloserThatServiceImpl : CloserThanService {
 
         while (toVisitNodes.isNotEmpty()) {
             val current = removeFirst(toVisitNodes)
-            val currentDistance = distances[current]!!
+            val currentDistance = distances[current] ?: undefined
 
             val neighbours = adjacencyList[current]!!
             neighbours.forEach { neighbour ->
-                val neighbourDistance = distances[neighbour.node]!!
+                val neighbourDistance = distances[neighbour.node] ?: undefined
                 val newDistance = currentDistance + neighbour.weight
                 if (neighbourDistance == undefined || neighbourDistance > newDistance) {
                     distances[neighbour.node] = newDistance
                 }
-                if (distances[neighbour.node]!! <= weight) {
+                if (newDistance <= weight) {
                     toVisitNodes.add(neighbour.node)
                 }
             }
