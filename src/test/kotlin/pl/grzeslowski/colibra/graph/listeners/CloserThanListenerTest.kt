@@ -108,6 +108,23 @@ internal class CloserThanListenerTest {
     }
 
     @Test
+    fun `should write empty string if set is empty`() {
+
+        // given
+        val weight = 5
+        val nodeName = "TEST-NODE"
+        val message = ClientMessage("CLOSER THAN $weight $nodeName")
+
+        given(closerThanService.closerThan(graph, Node(nodeName), weight)).willReturn(TreeSet())
+
+        // when
+        listener.onNewMessage(message, channel)
+
+        // then
+        verify(channel).write(ServerMessage(""))
+    }
+
+    @Test
     fun `should write error if node is not found`() {
 
         // given

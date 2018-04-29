@@ -25,13 +25,9 @@ class CloserThanListener(private val graphRepository: GraphRepository,
                 try {
                     val graph = graphRepository.getReadOnlyGraph()
                     val closerThan = closerThanService.closerThan(graph, node, weight)
-                    val msg = if (closerThan.isEmpty().not()) {
-                        closerThan.stream()
+                    val msg = closerThan.stream()
                                 .map { it.name }
                                 .collect(Collectors.joining(","))
-                    } else {
-                        "ERROR: NODE NOT FOUND"
-                    }
                     channel.write(ServerMessage(msg))
                 } catch (ex: NodeNotFound) {
                     logger.error("Cannot find node", ex)
