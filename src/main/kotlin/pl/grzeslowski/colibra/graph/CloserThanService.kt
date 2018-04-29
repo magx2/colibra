@@ -1,6 +1,5 @@
 package pl.grzeslowski.colibra.graph
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.util.SortedSet
 import java.util.TreeSet
@@ -17,7 +16,6 @@ interface CloserThanService {
 
 @Service
 class CloserThatServiceImpl : CloserThanService {
-    private val logger = LoggerFactory.getLogger(CloserThatServiceImpl::class.java)
     private val undefined = Int.MAX_VALUE
     private val comparator = Comparator<Node> { o1, o2 -> o1.name.compareTo(o2.name) }
 
