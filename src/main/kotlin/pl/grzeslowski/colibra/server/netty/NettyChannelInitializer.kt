@@ -1,14 +1,12 @@
 package pl.grzeslowski.colibra.server.netty
 
-import io.netty.channel.*
-import io.netty.channel.ChannelHandler.Sharable
+import io.netty.channel.ChannelInitializer
 import io.netty.channel.socket.SocketChannel
 import io.netty.handler.codec.LineBasedFrameDecoder
 import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
 import io.netty.handler.timeout.ReadTimeoutHandler
 import io.netty.util.CharsetUtil
-import org.omg.CORBA.Object
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Scope
